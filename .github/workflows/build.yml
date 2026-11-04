@@ -1,0 +1,57 @@
+# Builds the VST3 (and Standalone app) on Windows and macOS and uploads them as artifacts.
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-latest
+          - name: macOS Universal
+            os: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ui/.tool-versions
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      # JUCE links the WebView2 loader statically; it needs the SDK from NuGet.
+      - name: Fetch WebView2 SDK (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = "1.0.1901.177"
+          $dir = "$env:RUNNER_TEMP\nuget\Microsoft.Web.WebView2.$version"
+          Invoke-WebRequest "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2/$version" -OutFile "$env:RUNNER_TEMP\webview2.zip"
+          Expand-Archive "$env:RUNNER_TEMP\webview2.zip" -DestinationPath $dir
+          "WEBVIEW2_ARGS=-DJUCE_WEBVIEW2_PACKAGE_LOCATION=$env:RUNNER_TEMP\nuget" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Configure
+        shell: bash
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release ${WEBVIEW2_ARGS:-}
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Engine tests
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Obsidian Player - ${{ matrix.name }}
+          path: |
+            build/plugin/ObsidianPlayer_artefacts/Release/VST3
+            build/plugin/ObsidianPlayer_artefacts/Release/Standalone

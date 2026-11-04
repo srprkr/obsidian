@@ -1,0 +1,3 @@
+add_executable(obsidian_engine_tests EngineTests.cpp)
+target_link_libraries(obsidian_engine_tests PRIVATE obsidian_engine)
+add_test(NAME obsidian_engine_tests COMMAND obsidian_engine_tests)
