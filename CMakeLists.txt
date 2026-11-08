@@ -6,6 +6,10 @@ if(APPLE AND NOT CMAKE_OSX_ARCHITECTURES)
 endif()
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum macOS version")
 
+# Windows: link the C++ runtime statically, so the plugin doesn't need the
+# Visual C++ Redistributable (MSVCP140.dll) installed on the user's PC.
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 project(ObsidianPlayer VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -37,4 +41,8 @@ if(OBSIDIAN_BUILD_PLUGIN)
     endif()
 
     add_subdirectory(plugin)
+
+    if(OBSIDIAN_BUILD_TESTS)
+        add_subdirectory(tests/plugin-host)
+    endif()
 endif()

@@ -53,5 +53,6 @@ jobs:
         with:
           name: Obsidian Player - ${{ matrix.name }}
           path: |
-            build/plugin/ObsidianPlayer_artefacts/Release/VST3
-            build/plugin/ObsidianPlayer_artefacts/Release/Standalone
+            build/plugin/ObsidianPlayer_artefacts/Release/VST3/*.vst3
+            build/plugin/ObsidianPlayer_artefacts/Release/Standalone/*.exe
+            build/plugin/ObsidianPlayer_artefacts/Release/Standalone/*.app
