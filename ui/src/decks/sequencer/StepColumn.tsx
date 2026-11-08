@@ -23,6 +23,9 @@ export interface StepColumnProps {
 /** Pads and lane controls share this width so each pad sits exactly above its slider. */
 const CONTROL_WIDTH = "w-full max-w-[24px]";
 
+/** Whole and split pads share one height, so the Split / Merge button below never moves. */
+const PAD_HEIGHT = "h-12";
+
 const ACCENT_FILL = {
   neutral: { up: "from-zinc-600 via-zinc-400 to-zinc-200 border-t-2 border-white", down: "", badge: "" },
   amber: { up: "from-zinc-600 via-amber-400 to-amber-200 border-t border-white", down: "from-zinc-600 via-amber-500 to-amber-700 border-b border-amber-300", badge: "border-amber-500/40 bg-amber-400/20 text-amber-300" },
@@ -136,7 +139,7 @@ function StepPad({ label, half, isPlayhead, triggering, compact, onPaint, sessio
         if (e.buttons === 1 && session.paintTarget !== null) onPaint(session.paintTarget);
       }}
       title={`Step ${label}: click or drag to toggle`}
-      className={`flex ${CONTROL_WIDTH} cursor-pointer touch-none select-none flex-col items-center justify-between rounded-lg border py-1.5 transition-all ${
+      className={`flex ${PAD_HEIGHT} ${CONTROL_WIDTH} cursor-pointer touch-none select-none flex-col items-center justify-between rounded-lg border py-1.5 transition-all ${
         triggering
           ? "scale-[1.02] border-white bg-emerald-400 font-bold text-zinc-950 shadow-md"
           : half.on
