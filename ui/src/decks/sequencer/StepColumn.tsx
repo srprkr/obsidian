@@ -20,6 +20,9 @@ export interface StepColumnProps {
   audition: (half: StepHalf) => void;
 }
 
+/** Pads and lane controls share this width so each pad sits exactly above its slider. */
+const CONTROL_WIDTH = "w-full max-w-[24px]";
+
 const ACCENT_FILL = {
   neutral: { up: "from-zinc-600 via-zinc-400 to-zinc-200 border-t-2 border-white", down: "", badge: "" },
   amber: { up: "from-zinc-600 via-amber-400 to-amber-200 border-t border-white", down: "from-zinc-600 via-amber-500 to-amber-700 border-b border-amber-300", badge: "border-amber-500/40 bg-amber-400/20 text-amber-300" },
@@ -86,7 +89,7 @@ function StepLane({ index, halfKey, half, label, isPlayhead, lane, session, edit
         onPointerMove={(e) => session.drawingLane && e.buttons === 1 && write(e)}
         onDoubleClick={() => definition.bipolar && edit((p) => updateHalf(p, index, halfKey, { [definition.field]: definition.defaultValue }))}
         title={`Step ${label} ${definition.label}: ${definition.badge(value)}`}
-        className={`relative flex w-full max-w-[24px] flex-1 cursor-ns-resize touch-none select-none flex-col justify-end overflow-hidden rounded-md border bg-zinc-900 transition-all ${
+        className={`relative flex ${CONTROL_WIDTH} flex-1 cursor-ns-resize touch-none select-none flex-col justify-end overflow-hidden rounded-md border bg-zinc-900 transition-all ${
           isPlayhead ? "border-white shadow-[0_0_6px_rgba(255,255,255,0.3)]" : half.on ? "border-zinc-400 shadow-sm" : "border-zinc-800 opacity-60 hover:border-zinc-600"
         }`}
       >
@@ -133,7 +136,7 @@ function StepPad({ label, half, isPlayhead, triggering, compact, onPaint, sessio
         if (e.buttons === 1 && session.paintTarget !== null) onPaint(session.paintTarget);
       }}
       title={`Step ${label}: click or drag to toggle`}
-      className={`flex flex-1 cursor-pointer touch-none select-none flex-col items-center justify-between rounded-lg border py-1.5 transition-all ${compact ? "px-0.5" : "w-full px-1"} ${
+      className={`flex ${CONTROL_WIDTH} cursor-pointer touch-none select-none flex-col items-center justify-between rounded-lg border py-1.5 transition-all ${
         triggering
           ? "scale-[1.02] border-white bg-emerald-400 font-bold text-zinc-950 shadow-md"
           : half.on
@@ -145,13 +148,13 @@ function StepPad({ label, half, isPlayhead, triggering, compact, onPaint, sessio
               : "border-zinc-800/80 bg-zinc-900/60 text-zinc-500 hover:bg-zinc-850 hover:text-zinc-300"
       }`}
     >
-      <span className={`pointer-events-none font-mono font-bold leading-none ${compact ? "text-[9px]" : "text-[10px]"}`}>{label}</span>
+      <span className={`pointer-events-none font-mono font-bold leading-none ${compact ? "text-[8px] tracking-tighter" : "text-[10px]"}`}>{label}</span>
       <div
         className={`pointer-events-none my-1 rounded-full transition-all ${compact ? "h-2 w-2" : "h-2.5 w-2.5"} ${
           triggering ? "scale-125 bg-zinc-950" : half.on ? "bg-emerald-400 shadow-[0_0_6px_#34d399]" : "bg-zinc-800"
         }`}
       />
-      <span className={`pointer-events-none font-mono font-bold leading-none ${compact ? "text-[8px]" : "text-[9px]"}`}>
+      <span className={`pointer-events-none font-mono font-bold leading-none ${compact ? "text-[7px]" : "text-[9px]"}`}>
         {triggering ? "HIT" : half.on ? "ON" : "—"}
       </span>
     </div>
@@ -185,13 +188,21 @@ export function StepColumn({ index, step, lane, playheadHalf, armed, session, ed
               : "border-zinc-800 bg-zinc-950/80"
       }`}
     >
+      {/* Pad rows mirror the lane rows below (same slots and divider) so each pad sits over its slider. */}
       {step.split ? (
-        <div className="flex w-full items-center gap-1">
-          <StepPad label={`${number}.1`} half={step.first} isPlayhead={firstPlaying} triggering={triggeringFirst} compact onPaint={paint("first")} session={session} />
-          <StepPad label={`${number}.2`} half={step.second} isPlayhead={secondPlaying} triggering={triggeringSecond} compact onPaint={paint("second")} session={session} />
+        <div className="flex w-full items-stretch gap-1">
+          <div className="flex min-w-0 flex-1 justify-center">
+            <StepPad label={`${number}.1`} half={step.first} isPlayhead={firstPlaying} triggering={triggeringFirst} compact onPaint={paint("first")} session={session} />
+          </div>
+          <div className="w-px" />
+          <div className="flex min-w-0 flex-1 justify-center">
+            <StepPad label={`${number}.2`} half={step.second} isPlayhead={secondPlaying} triggering={triggeringSecond} compact onPaint={paint("second")} session={session} />
+          </div>
         </div>
       ) : (
-        <StepPad label={`${number}`} half={step.first} isPlayhead={onPlayhead} triggering={triggeringFirst} compact={false} onPaint={paint("first")} session={session} />
+        <div className="flex w-full justify-center">
+          <StepPad label={`${number}`} half={step.first} isPlayhead={onPlayhead} triggering={triggeringFirst} compact={false} onPaint={paint("first")} session={session} />
+        </div>
       )}
 
       <button

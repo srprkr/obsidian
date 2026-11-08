@@ -194,8 +194,9 @@ export function SequencerDeck() {
 
       {/* Pattern surface */}
       <div className="flex flex-1 flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-950/90 p-4 shadow-xl">
-        <div className="flex items-center justify-between border-b border-zinc-800/60 pb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
-          <div className="flex items-center gap-2">
+        {/* Equal outer columns keep the lane tabs centred whatever the presets on the right contain. */}
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 border-b border-zinc-800/60 pb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
+          <div className="flex items-center justify-start gap-2">
             <span className="font-bold text-zinc-300">{stepCount}-Step Pattern</span>
             <span
               className={`rounded border px-2 py-0.5 font-mono text-[10px] font-bold transition-all ${
@@ -216,7 +217,7 @@ export function SequencerDeck() {
             options={(["velocity", "arp", "pan"] as const).map((l) => ({ value: l, label: <span className="px-1.5 uppercase tracking-wider">{LANES[l].label}</span> }))}
           />
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center justify-end gap-1">
             <span className="mr-1 text-[10px] font-semibold text-zinc-500">Presets:</span>
             {LANE_PRESETS[lane].map((preset) => (
               <button
